@@ -77,10 +77,10 @@ if __name__ == "__main__":
         with open("egr3ss.html", "a+") as html_file:
             html_file.write(html_str)
 
-        info("HTML written to egr3ss.html")
-        warn("Put that HTML into your web root's index.html")
-        warn("Trick your victim into visiting http://" + myIP + "/")
-        warn("Ctrl+C to exit")
+    info("HTML written to egr3ss.html")
+    warn("Put that HTML into your web root's index.html")
+    warn("Trick your victim into visiting http://" + myIP + "/")
+    warn("Ctrl+C to exit")
 
     while True:
         try:
