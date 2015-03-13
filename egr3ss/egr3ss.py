@@ -72,21 +72,21 @@ if __name__ == "__main__":
         info("Listening on port: " + str(port))
         logging.info("Listening on port " + str(port))
 
-        for port in ports:
-            html_str = '<img src=http://' + str(myIP) + ':' + str(port) + '/check.png><br>\n'
-            with open("egr3ss.html", "a+") as html_file:
-                html_file.write(html_str)
+    for port in ports:
+        html_str = '<img src=http://' + str(myIP) + ':' + str(port) + '/check.png><br>\n'
+        with open("egr3ss.html", "a+") as html_file:
+            html_file.write(html_str)
 
         info("HTML written to egr3ss.html")
         warn("Put that HTML into your web root's index.html")
         warn("Trick your victim into visiting http://" + myIP + "/")
         warn("Ctrl+C to exit")
 
-        while True:
-            try:
-                time.sleep(1)
-            except KeyboardInterrupt:
-                print "\n"
-                info("Exiting. Run egr3ss-report.py for a nicely formatted log report.")
-                logging.info("Ending log")
-                break
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print "\n"
+            info("Exiting. Run egr3ss-report.py for a nicely formatted log report.")
+            logging.info("Ending log")
+            break
