@@ -6,6 +6,7 @@ import SocketServer
 import sys
 import argparse
 import logging
+from utils import info, warn, good
 
 #############################################################################
 # A fork of egress_lister.py by Dave Kennedy (ReL1K). http://bit.ly/1DLpEwV #
@@ -24,12 +25,6 @@ print """
 -[ See http://bit.ly/1dLpEwV for info
 """
 
-# Define our color notifcations
-class bcolors:
-	WARN = '\033[93m\033[1m[!] \033[0m'
-	GOOD = '\033[92m\033[1m[+] \033[0m'
-	INFO = '\033[94m\033[1m[*] \033[0m'
-
 # Grab our argument values with ArgParse
 parser = argparse.ArgumentParser(description='Stand up TCP servers for reverse TCP port scanning')
 parser.add_argument('-p', '--ports', help='The ports to listen on', action='store')
@@ -43,11 +38,11 @@ myLOG = args.logfile
 
 # Set up the logger
 logging.basicConfig(
-	filename=myLOG,
-	level=logging.DEBUG,
-	format='%(asctime)s %(message)s',
-	datefmt='%m/%d/%Y %I:%M:%S %p'
-	)
+        filename=myLOG,
+        level=logging.DEBUG,
+        format='%(asctime)s %(message)s',
+        datefmt='%m/%d/%Y %I:%M:%S %p'
+        )
 logging.info("Starting log.")
 
 # Nmap-style port parsing from: https://python-portscanner.googlecode.com/svn/trunk/nmap.py
@@ -58,104 +53,44 @@ ports = [i for r in ranges for i in range(int(r[0]), int(r[-1]) + 1)]
 # base class handler for socket server
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 
-	# handle the packet
+    # handle the packet
     def handle(self):
         self.data = self.request.recv(1024).strip()
-	print(
-	bcolors.GOOD
-	+ "["
-	+ time.strftime("%x")
-	+ " - "
-	+ time.strftime("%X")
-	+ "] "
-	+ "%s connected on port: %s" % (self.client_address[0],self.server.server_address[1])
-	)
-	logging.info("%s %s" % (self.client_address[0],self.server.server_address[1]))
+        good("%s connected on port: %s" % (self.client_address[0], self.server.server_address[1]))
+        logging.info("%s %s" % (self.client_address[0],self.server.server_address[1]))
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 if __name__ == "__main__":
 
-	for port in ports:
-		socketserver = ThreadedTCPServer(('', port), ThreadedTCPRequestHandler)
-		socketserver_thread = threading.Thread(target=socketserver.serve_forever)
-		socketserver_thread.setDaemon(True)
-		socketserver_thread.start()
-		print (
-		bcolors.INFO
-		+ "["
-		+ time.strftime("%x")
-		+ " - "
-		+ time.strftime("%X")
-		+ "] "
-		+ "Listening on port: "
-		+ str(port)
-		)
-		logging.info("Listening on port " + str(port))
+    for port in ports:
+        socketserver = ThreadedTCPServer(('', port), ThreadedTCPRequestHandler)
+        socketserver_thread = threading.Thread(target=socketserver.serve_forever)
+        socketserver_thread.setDaemon(True)
+        socketserver_thread.start()
+        info("Listening on port: " + str(port))
+        logging.info("Listening on port " + str(port))
 
-	for port in ports:
-		html_str = '<img src=http://' + str(myIP) + ':' + str(port) + '/check.png><br>\n'
-		try:
-			with open("egr3ss.html", "a") as html_file:
-				html_file.write(html_str)
-		except:
-			with open("egr3ss.html", "w") as html_file:
-				html_file.write(html_str)
+        for port in ports:
+            html_str = '<img src=http://' + str(myIP) + ':' + str(port) + '/check.png><br>\n'
+            try:
+                with open("egr3ss.html", "a") as html_file:
+                    html_file.write(html_str)
+            except:
+                with open("egr3ss.html", "w") as html_file:
+                    html_file.write(html_str)
 
-	print(
-	bcolors.INFO
-	+ "["
-	+ time.strftime("%x")
-	+ " - "
-	+ time.strftime("%X")
-	+ "] "
-	+ "HTML written to egr3ss.html"
-	)
+        info("HTML written to egr3ss.html")
+        warn("Put that HTML into your web root's index.html")
+        warn("Trick your victim into visiting http://" + myIP + "/")
+        warn("Ctrl+C to exit")
 
-	print(
-	bcolors.WARN
-	+ "["
-	+ time.strftime("%x")
-	+ " - "
-	+ time.strftime("%X")
-	+ "] "
-	+ "Put that HTML into your web root's index.html"
-	)
-
-	print(
-	bcolors.WARN
-	+ "["
-	+ time.strftime("%x")
-	+ " - "
-	+ time.strftime("%X")
-	+ "] "
-	+ "Trick your victim into visiting http://" + myIP + "/"
-	)
-
-	print(
-	bcolors.WARN
-	+ "["
-	+ time.strftime("%x")
-	+ " - "
-	+ time.strftime("%X")
-	+ "] "
-	+ "Ctrl+C to exit"
-	)
-
-	while 1:
-		try:
-			time.sleep(1)
-		except KeyboardInterrupt:
-			print(
-			"\n"
-			+ bcolors.INFO
-			+ "["
-			+ time.strftime("%x")
-			+ " - "
-			+ time.strftime("%X")
-			+ "] "
-			+ "Exiting. Run egr3ss-report.py for a nicely formatted log report. :)"
-			)
-			logging.info("Ending log")
-			break
+        while True:
+            try:
+                time.sleep(1)
+            except KeyboardInterrupt:
+                print "\n"
+                info("Exiting. Run egr3ss-report.py for a nicely formatted log report.")
+                logging.info("Ending log")
+                break
