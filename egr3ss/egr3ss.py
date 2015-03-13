@@ -74,12 +74,8 @@ if __name__ == "__main__":
 
         for port in ports:
             html_str = '<img src=http://' + str(myIP) + ':' + str(port) + '/check.png><br>\n'
-            try:
-                with open("egr3ss.html", "a") as html_file:
-                    html_file.write(html_str)
-            except:
-                with open("egr3ss.html", "w") as html_file:
-                    html_file.write(html_str)
+            with open("egr3ss.html", "a+") as html_file:
+                html_file.write(html_str)
 
         info("HTML written to egr3ss.html")
         warn("Put that HTML into your web root's index.html")
